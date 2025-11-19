@@ -9,14 +9,16 @@ dotenv.config();
 // Import models to register them and set up associations
 require('./models/index');
 
-// Connect to database
+// Connect to database (async - don't block server start)
 connectDB().catch(err => {
   console.error('❌ Failed to connect to PostgreSQL');
-  console.error('💡 Please check your PostgreSQL connection in .env file');
+  console.error('💡 Please check your PostgreSQL connection');
   console.error('📖 See DATABASE_OPTIONS.md for setup instructions');
-  // Don't exit in development - allow server to start for testing
+  // In production, log error but don't exit immediately
+  // Railway will retry or show error in logs
   if (process.env.NODE_ENV === 'production') {
-    process.exit(1);
+    console.error('⚠️ Production mode: Server will continue but database operations may fail');
+    // Don't exit - let Railway handle it
   }
 });
 
@@ -104,10 +106,11 @@ app.use((req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 
 // Railway automatically assigns PORT
-app.listen(PORT, () => {
+// Listen on 0.0.0.0 to accept connections from all network interfaces (required for Railway)
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📱 Environment: ${process.env.NODE_ENV || 'development'}`);
   if (process.env.RAILWAY_ENVIRONMENT) {

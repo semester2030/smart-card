@@ -163,21 +163,28 @@ class ApiService {
 
       final result = _handleResponse(response);
     
-    if (result['data'] != null) {
-      // Save token
-      if (result['data']['token'] != null) {
-        await LocalStorageService.saveString('token', result['data']['token']);
+      if (result['data'] != null) {
+        // Save token
+        if (result['data']['token'] != null) {
+          await LocalStorageService.saveString('token', result['data']['token']);
+        }
+        
+        // Save user
+        if (result['data']['user'] != null) {
+          final userJson = _convertMongoId(result['data']['user']);
+          await LocalStorageService.saveJson(AppConstants.keyUser, userJson);
+          return UserModel.fromJson(userJson);
+        }
       }
-      
-      // Save user
-      if (result['data']['user'] != null) {
-        final userJson = _convertMongoId(result['data']['user']);
-        await LocalStorageService.saveJson(AppConstants.keyUser, userJson);
-        return UserModel.fromJson(userJson);
-      }
-    }
 
-    return null;
+      return null;
+    } on TimeoutException {
+      throw Exception('انتهت مهلة الاتصال. تأكد من أن Backend يعمل');
+    } on http.ClientException catch (e) {
+      throw Exception('لا يمكن الاتصال بالخادم: ${e.message}');
+    } catch (e) {
+      throw Exception('حدث خطأ أثناء تسجيل الدخول: $e');
+    }
   }
 
   /// Get current user

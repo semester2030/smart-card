@@ -7,13 +7,13 @@ WORKDIR /app/backend
 COPY backend/package.json ./
 COPY backend/package-lock.json* ./
 
-# Install dependencies
-RUN npm install --production
+# Install dependencies (use npm ci for production)
+RUN npm ci --only=production
 
 # Copy all backend files
 COPY backend/ ./
 
-# Expose port
+# Expose port (Railway will assign PORT dynamically)
 EXPOSE 3000
 
 # Start server

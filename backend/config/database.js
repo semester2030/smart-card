@@ -54,11 +54,16 @@ const connectDB = async () => {
     // In production, sync without alter to avoid data loss
     await sequelize.sync({ alter: false }); // Use { force: true } to drop and recreate tables (DANGEROUS!)
     console.log('✅ Database tables synced');
+    return true;
   } catch (error) {
     console.error(`❌ Error connecting to PostgreSQL: ${error.message}`);
+    console.error(`❌ Error stack: ${error.stack}`);
+    // In production, don't exit immediately - let Railway retry
     if (process.env.NODE_ENV === 'production') {
-      process.exit(1);
+      console.error('⚠️ Production mode: Will retry connection...');
+      // Don't exit - let Railway handle retries
     }
+    throw error; // Re-throw to let caller handle
   }
 };
 
