@@ -1,0 +1,56 @@
+# .dockerignore for Smart Card Backend
+# This file tells Docker which files to ignore when building
+
+# Flutter files (not needed for backend)
+flutter/
+*.dart
+pubspec.yaml
+pubspec.lock
+.dart_tool/
+build/
+ios/
+android/
+web/
+lib/
+test/
+assets/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Documentation
+*.md
+!backend/README.md
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Only include backend files
+!backend/
+
