@@ -83,8 +83,13 @@ app.get('/api', (req, res) => {
   });
 });
 
-// Health check
+// Health check - Railway uses this to verify the service is running
 app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK', message: 'Smart Card API is running' });
+});
+
+// Root health check (for Railway)
+app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Smart Card API is running' });
 });
 
