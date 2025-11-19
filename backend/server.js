@@ -11,23 +11,22 @@ require('./models/index');
 
 // CRITICAL: Server MUST start immediately - Database connection in background
 // Railway health check requires server to respond within seconds
-setTimeout(() => {
-  connectDB().catch(err => {
-    console.error('❌ Failed to connect to PostgreSQL');
-    console.error('💡 Will retry in background...');
-    // Retry every 10 seconds in production
-    if (process.env.NODE_ENV === 'production') {
-      const retryInterval = setInterval(() => {
-        connectDB().then(() => {
-          clearInterval(retryInterval);
-          console.log('✅ Database connected after retry');
-        }).catch(() => {
-          // Silent retry
-        });
-      }, 10000);
-    }
-  });
-}, 100); // Start DB connection 100ms after server starts
+// Don't block server start - connect DB in background
+connectDB().catch(err => {
+  console.error('❌ Failed to connect to PostgreSQL');
+  if (process.env.NODE_ENV === 'production') {
+    console.error('⚠️ Production: Server continues - database will retry in background');
+    // Retry every 10 seconds
+    const retryInterval = setInterval(() => {
+      connectDB().then(() => {
+        clearInterval(retryInterval);
+        console.log('✅ Database connected after retry');
+      }).catch(() => {
+        // Silent retry
+      });
+    }, 10000);
+  }
+});
 
 const app = express();
 
@@ -93,39 +92,19 @@ app.get('/api', (req, res) => {
 // Health check - Railway uses this to verify the service is running
 // CRITICAL: Must respond INSTANTLY - NO database queries, NO async operations!
 app.get('/health', (req, res) => {
-  // Log health check (for debugging)
-  console.log(`[${new Date().toISOString()}] Health check requested`);
-  
-  // Immediate response - no delays, no database, no async
-  const response = { 
+  res.status(200).json({ 
     status: 'OK', 
     message: 'Smart Card API is running',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development'
-  };
-  
-  // Set proper headers
-  res.setHeader('Content-Type', 'application/json');
-  res.status(200).json(response);
+    timestamp: new Date().toISOString()
+  });
 });
 
 app.get('/api/health', (req, res) => {
-  // Log health check (for debugging)
-  console.log(`[${new Date().toISOString()}] API Health check requested`);
-  
-  // Immediate response - no delays, no database, no async
-  const response = { 
+  res.status(200).json({ 
     status: 'OK', 
     message: 'Smart Card API is running',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development'
-  };
-  
-  // Set proper headers
-  res.setHeader('Content-Type', 'application/json');
-  res.status(200).json(response);
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Error handling middleware

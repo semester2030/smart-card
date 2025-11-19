@@ -18,9 +18,7 @@ EXPOSE 3000
 # Set environment to production
 ENV NODE_ENV=production
 
-# Start server with explicit output
+# Start server
 # Note: Railway handles health checks automatically via /health endpoint
-# Using simple server first to test if Railway can start it
-# Use exec form to ensure proper signal handling
-CMD ["node", "server-simple.js"]
+CMD ["node", "server.js"]
 
