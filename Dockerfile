@@ -5,10 +5,10 @@ WORKDIR /app/backend
 
 # Copy package files first (for better caching)
 COPY backend/package.json ./
-COPY backend/package-lock.json* ./
 
-# Install dependencies (use npm ci for production)
-RUN npm ci --only=production
+# Install dependencies
+# Use npm install instead of npm ci if package-lock.json doesn't exist
+RUN npm install --production --omit=dev
 
 # Copy all backend files
 COPY backend/ ./
