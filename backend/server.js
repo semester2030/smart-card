@@ -10,15 +10,16 @@ dotenv.config();
 require('./models/index');
 
 // Connect to database (async - don't block server start)
+// Important: Don't block server start - let it start even if DB connection fails initially
 connectDB().catch(err => {
   console.error('❌ Failed to connect to PostgreSQL');
   console.error('💡 Please check your PostgreSQL connection');
   console.error('📖 See DATABASE_OPTIONS.md for setup instructions');
-  // In production, log error but don't exit immediately
-  // Railway will retry or show error in logs
+  // In production, log error but don't exit - server must start for health checks
   if (process.env.NODE_ENV === 'production') {
     console.error('⚠️ Production mode: Server will continue but database operations may fail');
-    // Don't exit - let Railway handle it
+    console.error('⚠️ Railway health check will still work - server is running');
+    // Don't exit - Railway needs the server to respond to health checks
   }
 });
 
@@ -84,13 +85,21 @@ app.get('/api', (req, res) => {
 });
 
 // Health check - Railway uses this to verify the service is running
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Smart Card API is running' });
+// Must respond quickly and return 200 status
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    message: 'Smart Card API is running',
+    timestamp: new Date().toISOString()
+  });
 });
 
-// Root health check (for Railway)
-app.get('/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Smart Card API is running' });
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    message: 'Smart Card API is running',
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Error handling middleware
