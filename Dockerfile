@@ -15,7 +15,10 @@ COPY backend/ ./
 # Expose port (Railway will assign PORT dynamically)
 EXPOSE 3000
 
-# Start server
+# Set environment to production
+ENV NODE_ENV=production
+
+# Start server with explicit output
 # Note: Railway handles health checks automatically via /health endpoint
 CMD ["node", "server.js"]
 

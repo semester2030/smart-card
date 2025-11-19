@@ -93,23 +93,39 @@ app.get('/api', (req, res) => {
 // Health check - Railway uses this to verify the service is running
 // CRITICAL: Must respond INSTANTLY - NO database queries, NO async operations!
 app.get('/health', (req, res) => {
+  // Log health check (for debugging)
+  console.log(`[${new Date().toISOString()}] Health check requested`);
+  
   // Immediate response - no delays, no database, no async
-  res.status(200).json({ 
+  const response = { 
     status: 'OK', 
     message: 'Smart Card API is running',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
-  });
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development'
+  };
+  
+  // Set proper headers
+  res.setHeader('Content-Type', 'application/json');
+  res.status(200).json(response);
 });
 
 app.get('/api/health', (req, res) => {
+  // Log health check (for debugging)
+  console.log(`[${new Date().toISOString()}] API Health check requested`);
+  
   // Immediate response - no delays, no database, no async
-  res.status(200).json({ 
+  const response = { 
     status: 'OK', 
     message: 'Smart Card API is running',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
-  });
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development'
+  };
+  
+  // Set proper headers
+  res.setHeader('Content-Type', 'application/json');
+  res.status(200).json(response);
 });
 
 // Error handling middleware
@@ -135,7 +151,14 @@ const PORT = process.env.PORT || 3000;
 // CRITICAL: Start server IMMEDIATELY - don't wait for anything
 // Railway automatically assigns PORT
 // Listen on 0.0.0.0 to accept connections from all network interfaces (required for Railway)
+
+// Log BEFORE starting server (important for Railway logs)
+console.log('🔧 Starting Smart Card API Server...');
+console.log(`📋 PORT: ${PORT}`);
+console.log(`📋 NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
+
 const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log('='.repeat(50));
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📱 Environment: ${process.env.NODE_ENV || 'development'}`);
   if (process.env.RAILWAY_ENVIRONMENT) {
@@ -145,6 +168,12 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   }
   console.log(`✅ Health check available at: http://0.0.0.0:${PORT}/health`);
   console.log(`✅ Server is READY - Railway health check can now succeed`);
+  console.log('='.repeat(50));
+  
+  // Force flush logs (important for Railway)
+  if (process.stdout && typeof process.stdout.write === 'function') {
+    process.stdout.write('');
+  }
 });
 
 // Handle server errors gracefully
