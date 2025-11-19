@@ -9,19 +9,25 @@ dotenv.config();
 // Import models to register them and set up associations
 require('./models/index');
 
-// Connect to database (async - don't block server start)
-// Important: Don't block server start - let it start even if DB connection fails initially
-connectDB().catch(err => {
-  console.error('❌ Failed to connect to PostgreSQL');
-  console.error('💡 Please check your PostgreSQL connection');
-  console.error('📖 See DATABASE_OPTIONS.md for setup instructions');
-  // In production, log error but don't exit - server must start for health checks
-  if (process.env.NODE_ENV === 'production') {
-    console.error('⚠️ Production mode: Server will continue but database operations may fail');
-    console.error('⚠️ Railway health check will still work - server is running');
-    // Don't exit - Railway needs the server to respond to health checks
-  }
-});
+// CRITICAL: Server MUST start immediately - Database connection in background
+// Railway health check requires server to respond within seconds
+setTimeout(() => {
+  connectDB().catch(err => {
+    console.error('❌ Failed to connect to PostgreSQL');
+    console.error('💡 Will retry in background...');
+    // Retry every 10 seconds in production
+    if (process.env.NODE_ENV === 'production') {
+      const retryInterval = setInterval(() => {
+        connectDB().then(() => {
+          clearInterval(retryInterval);
+          console.log('✅ Database connected after retry');
+        }).catch(() => {
+          // Silent retry
+        });
+      }, 10000);
+    }
+  });
+}, 100); // Start DB connection 100ms after server starts
 
 const app = express();
 
@@ -85,22 +91,24 @@ app.get('/api', (req, res) => {
 });
 
 // Health check - Railway uses this to verify the service is running
-// Must respond quickly and return 200 status - NO database queries!
+// CRITICAL: Must respond INSTANTLY - NO database queries, NO async operations!
 app.get('/health', (req, res) => {
-  // Quick response - no database check to avoid delays
+  // Immediate response - no delays, no database, no async
   res.status(200).json({ 
     status: 'OK', 
     message: 'Smart Card API is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
   });
 });
 
 app.get('/api/health', (req, res) => {
-  // Quick response - no database check to avoid delays
+  // Immediate response - no delays, no database, no async
   res.status(200).json({ 
     status: 'OK', 
     message: 'Smart Card API is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
   });
 });
 
