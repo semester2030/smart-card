@@ -1,0 +1,14 @@
+{
+  "name": "smart-card-root",
+  "version": "1.0.0",
+  "description": "Smart Card - Root package.json for Railway deployment",
+  "private": true,
+  "scripts": {
+    "install": "cd backend && npm ci",
+    "start": "cd backend && node server.js"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
+
