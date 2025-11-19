@@ -1,16 +1,15 @@
 # Dockerfile for Smart Card Backend
 FROM node:18-alpine
 
-WORKDIR /app
+WORKDIR /app/backend
 
-# Copy package files
-COPY backend/package*.json ./backend/
+# Copy package files first (for better caching)
+COPY backend/package*.json ./
 
 # Install dependencies
-WORKDIR /app/backend
-RUN npm ci --only=production
+RUN npm ci
 
-# Copy backend files
+# Copy all backend files
 COPY backend/ ./
 
 # Expose port
