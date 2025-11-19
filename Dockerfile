@@ -20,5 +20,6 @@ ENV NODE_ENV=production
 
 # Start server with explicit output
 # Note: Railway handles health checks automatically via /health endpoint
-CMD ["node", "server.js"]
+# Using simple server first to test if Railway can start it
+CMD ["node", "server-simple.js"]
 
