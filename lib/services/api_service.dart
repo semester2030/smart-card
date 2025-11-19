@@ -151,16 +151,17 @@ class ApiService {
 
   /// Login user
   Future<UserModel?> login(String emailOrSmartCardId, String password) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/auth/login'),
-      headers: await _getHeaders(includeAuth: false),
-      body: json.encode({
-        'emailOrSmartCardId': emailOrSmartCardId,
-        'password': password,
-      }),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/login'),
+        headers: await _getHeaders(includeAuth: false),
+        body: json.encode({
+          'emailOrSmartCardId': emailOrSmartCardId,
+          'password': password,
+        }),
+      ).timeout(const Duration(seconds: 10));
 
-    final result = _handleResponse(response);
+      final result = _handleResponse(response);
     
     if (result['data'] != null) {
       // Save token
