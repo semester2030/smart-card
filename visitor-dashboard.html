@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم الزائر - ExpoCard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dashboard">
+    <!-- Dashboard Header -->
+    <header class="dashboard-header">
+        <div class="container">
+            <div class="dashboard-title">
+                <i class="fas fa-user"></i>
+                لوحة تحكم الزائر
+            </div>
+            <div class="user-info">
+                <span class="expo-id" id="userExpoId">Expo#1200</span>
+                <button class="btn btn-outline" onclick="resetDemoData()" title="إعادة تعيين البيانات الافتراضية">
+                    <i class="fas fa-sync"></i> إعادة تعيين
+                </button>
+                <button class="btn btn-outline" onclick="window.location.href='index.html'">
+                    <i class="fas fa-home"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-content">
+        <div class="container">
+            <!-- Quick Stats -->
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-address-book"></i> جهات الاتصال</h3>
+                    <div class="card-stat" id="contactsCount">0</div>
+                    <div class="card-label">لقاء محفوظ</div>
+                </div>
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-sticky-note"></i> الملاحظات</h3>
+                    <div class="card-stat" id="notesCount">0</div>
+                    <div class="card-label">ملاحظة محفوظة</div>
+                </div>
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-calendar-check"></i> المتابعات</h3>
+                    <div class="card-stat" id="followUpsCount">0</div>
+                    <div class="card-label">متابعة مجدولة</div>
+                </div>
+            </div>
+
+            <!-- Main Actions -->
+            <div class="dashboard-grid">
+                <!-- QR Scanner -->
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-qrcode"></i> مسح QR</h3>
+                    <div class="qr-scanner-container">
+                        <div class="qr-scanner-box" onclick="openQRScanner()">
+                            <div class="qr-placeholder">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                        </div>
+                        <p style="color: var(--gray); margin-bottom: 1rem;">اضغط لفتح الماسح الضوئي</p>
+                        <div class="form-group">
+                            <label>أو أدخل ExpoID يدوياً</label>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="text" id="manualExpoId" placeholder="مثال: Expo#2048" style="flex: 1;">
+                                <button class="btn btn-primary" onclick="addContactByID()">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Assistant -->
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-brain"></i> مساعد ExpoAI</h3>
+                    <div id="aiSuggestions">
+                        <div class="ai-suggestion">
+                            <h4><i class="fas fa-lightbulb"></i> اقتراحات ذكية</h4>
+                            <div class="suggestion-text" id="aiSuggestionText">
+                                اضغط على "تحديث الاقتراحات" للحصول على توصيات مخصصة
+                            </div>
+                            <button class="btn btn-primary" onclick="generateAISuggestions()" style="width: 100%;">
+                                <i class="fas fa-sync"></i> تحديث الاقتراحات
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contacts List -->
+            <div class="dashboard-card" style="margin-top: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3><i class="fas fa-address-book"></i> جهات الاتصال المحفوظة</h3>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="searchContacts" placeholder="بحث..." style="padding: 0.5rem; border: 2px solid var(--gray-light); border-radius: var(--radius);" onkeyup="filterContacts()">
+                        <select id="filterContacts" onchange="filterContacts()" style="padding: 0.5rem; border: 2px solid var(--gray-light); border-radius: var(--radius);">
+                            <option value="">جميع الأحداث</option>
+                            <option value="event1">معرض التعليم 2024</option>
+                            <option value="event2">معرض التقنية 2024</option>
+                        </select>
+                    </div>
+                </div>
+                <ul class="contacts-list" id="contactsList">
+                    <li class="empty-state">
+                        <i class="fas fa-inbox" style="font-size: 3rem; color: var(--gray); margin-bottom: 1rem;"></i>
+                        <p style="color: var(--gray);">لا توجد جهات اتصال محفوظة بعد. ابدأ بمسح QR code!</p>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Notes Section -->
+            <div class="dashboard-card" style="margin-top: 2rem;">
+                <h3><i class="fas fa-sticky-note"></i> ملاحظاتي</h3>
+                <div id="notesList">
+                    <div class="empty-state">
+                        <p style="color: var(--gray);">لا توجد ملاحظات بعد</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Detail Modal -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close" onclick="closeContactModal()">&times;</span>
+            <div id="contactModalContent"></div>
+        </div>
+    </div>
+
+    <!-- QR Scanner Modal -->
+    <div id="qrScannerModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close" onclick="closeQRScanner()">&times;</span>
+            <h2 style="text-align: center; margin-bottom: 2rem;">مسح QR Code</h2>
+            <div class="qr-scanner-box" style="width: 100%; height: 300px; margin-bottom: 1rem;">
+                <div class="qr-placeholder">
+                    <i class="fas fa-qrcode" style="font-size: 5rem;"></i>
+                </div>
+            </div>
+            <p style="text-align: center; color: var(--gray); margin-bottom: 1rem;">
+                ضع الكاميرا أمام QR code
+            </p>
+            <button class="btn btn-primary" onclick="simulateQRScan()" style="width: 100%;">
+                <i class="fas fa-check"></i> محاكاة المسح (للتجربة)
+            </button>
+        </div>
+    </div>
+
+    <script src="js/visitor-dashboard.js"></script>
+</body>
+</html>
+

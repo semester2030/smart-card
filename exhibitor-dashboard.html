@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم العارض - ExpoCard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dashboard">
+    <!-- Dashboard Header -->
+    <header class="dashboard-header">
+        <div class="container">
+            <div class="dashboard-title">
+                <i class="fas fa-building"></i>
+                لوحة تحكم العارض
+            </div>
+            <div class="user-info">
+                <span class="expo-id" id="companyExpoId">Expo#2048</span>
+                <button class="btn btn-outline" onclick="openProfileModal()" title="الملف الشخصي">
+                    <i class="fas fa-user-circle"></i> الملف الشخصي
+                </button>
+                <button class="btn btn-outline" onclick="resetExhibitorDemoData()" title="إعادة تعيين البيانات الافتراضية">
+                    <i class="fas fa-sync"></i> إعادة تعيين
+                </button>
+                <button class="btn btn-outline" onclick="window.location.href='index.html'">
+                    <i class="fas fa-home"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-content">
+        <div class="container">
+            <!-- Quick Stats -->
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-users"></i> Leads</h3>
+                    <div class="card-stat" id="leadsCount">0</div>
+                    <div class="card-label">زائر محفوظ</div>
+                </div>
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-qrcode"></i> المسحات</h3>
+                    <div class="card-stat" id="scansCount">0</div>
+                    <div class="card-label">مسح اليوم</div>
+                </div>
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-chart-line"></i> معدل التحويل</h3>
+                    <div class="card-stat" id="conversionRate">0%</div>
+                    <div class="card-label">scans → follow-ups</div>
+                </div>
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-star"></i> متوسط الاهتمام</h3>
+                    <div class="card-stat" id="avgInterest">0</div>
+                    <div class="card-label">AI Score</div>
+                </div>
+            </div>
+
+            <!-- Company Information & Brochure -->
+            <div class="dashboard-card" style="margin-top: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3><i class="fas fa-building"></i> معلومات الشركة والبروشور</h3>
+                    <button class="btn btn-primary" onclick="openCompanyInfoModal()">
+                        <i class="fas fa-edit"></i> تعديل المعلومات
+                    </button>
+                </div>
+                <div id="companyInfoDisplay">
+                    <p style="color: var(--gray); text-align: center; padding: 2rem;">
+                        <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
+                        اضغط على "تعديل المعلومات" لإضافة معلومات الشركة والبروشور الرقمي
+                    </p>
+                </div>
+            </div>
+
+            <!-- QR Code for Booth -->
+            <div class="dashboard-card" style="margin-top: 2rem;">
+                <h3><i class="fas fa-qrcode"></i> QR Code الجناح</h3>
+                <div style="text-align: center; padding: 2rem;">
+                    <div id="boothQR" style="width: 250px; height: 250px; margin: 0 auto; background: var(--light); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 4rem; color: var(--primary); border: 3px solid var(--primary);">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    <p style="margin-top: 1rem; color: var(--gray);" id="boothExpoId">Expo#2048</p>
+                    <button class="btn btn-primary" onclick="printQR()" style="margin-top: 1rem;">
+                        <i class="fas fa-print"></i> طباعة QR
+                    </button>
+                </div>
+            </div>
+
+            <!-- Leads Table -->
+            <div class="dashboard-card" style="margin-top: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3><i class="fas fa-list"></i> قائمة Leads</h3>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="searchLeads" placeholder="بحث..." style="padding: 0.5rem; border: 2px solid var(--gray-light); border-radius: var(--radius);" onkeyup="filterLeads()">
+                        <select id="sortLeads" onchange="filterLeads()" style="padding: 0.5rem; border: 2px solid var(--gray-light); border-radius: var(--radius);">
+                            <option value="recent">الأحدث</option>
+                            <option value="score">أعلى درجة</option>
+                            <option value="name">الاسم</option>
+                        </select>
+                    </div>
+                </div>
+                <table class="leads-table">
+                    <thead>
+                        <tr>
+                            <th>الزائر</th>
+                            <th>ExpoID</th>
+                            <th>التاريخ</th>
+                            <th>AI Score</th>
+                            <th>الحالة</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leadsTableBody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 3rem; color: var(--gray);">
+                                <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
+                                لا توجد Leads بعد
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Analytics -->
+            <div class="dashboard-grid" style="margin-top: 2rem;">
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-chart-bar"></i> إحصائيات اليوم</h3>
+                    <div class="chart-container">
+                        <p>مخطط المسحات عبر اليوم</p>
+                    </div>
+                </div>
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-map-marked-alt"></i> مصادر الزوار</h3>
+                    <div class="chart-container">
+                        <p>توزيع الزوار حسب الفئة</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Assistant -->
+            <div class="dashboard-card" style="margin-top: 2rem;">
+                <h3><i class="fas fa-brain"></i> مساعد ExpoAI</h3>
+                <div id="exhibitorAISuggestions">
+                    <div class="ai-suggestion">
+                        <h4><i class="fas fa-lightbulb"></i> توصيات ذكية</h4>
+                        <div class="suggestion-text" id="exhibitorAIText">
+                            اضغط على "تحديث" للحصول على توصيات مخصصة بناءً على Leads الخاص بك
+                        </div>
+                        <button class="btn btn-primary" onclick="generateExhibitorAISuggestions()" style="width: 100%;">
+                            <i class="fas fa-sync"></i> تحديث التوصيات
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lead Detail Modal -->
+    <div id="leadModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <span class="close" onclick="closeLeadModal()">&times;</span>
+            <div id="leadModalContent"></div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+            <span class="close" onclick="closeProfileModal()">&times;</span>
+            <h2 style="margin-bottom: 2rem;"><i class="fas fa-user-circle"></i> الملف الشخصي</h2>
+            
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; margin-bottom: 2rem;">
+                <!-- Profile Sidebar -->
+                <div style="background: var(--gray-light); padding: 2rem; border-radius: 12px; text-align: center;">
+                    <div style="position: relative; display: inline-block; margin-bottom: 1rem;">
+                        <div id="profileImageContainer" style="width: 120px; height: 120px; margin: 0 auto; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white; overflow: hidden; border: 3px solid white; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                            <i class="fas fa-building" id="profileImageIcon"></i>
+                            <img id="profileImagePreview" src="" alt="صورة الشركة" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                        </div>
+                        <label for="profileImageUpload" style="position: absolute; bottom: 0; right: 0; background: var(--primary); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                            <i class="fas fa-camera"></i>
+                        </label>
+                        <input type="file" id="profileImageUpload" accept="image/*" style="display: none;" onchange="handleProfileImageUpload(event)">
+                    </div>
+                    <h3 id="profileCompanyName" style="color: var(--primary); margin-bottom: 0.5rem;">اسم الشركة</h3>
+                    <p id="profileExpoId" style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;">Expo#2048</p>
+                    <div style="padding: 1rem; background: white; border-radius: 8px; margin-top: 1rem;">
+                        <div style="font-size: 0.9rem; color: var(--gray); margin-bottom: 0.5rem;">إحصائيات سريعة</div>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary);" id="profileLeadsCount">0</div>
+                        <div style="font-size: 0.8rem; color: var(--gray);">Leads</div>
+                    </div>
+                </div>
+                
+                <!-- Profile Content -->
+                <div>
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="color: var(--primary); margin-bottom: 1rem; border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem;">
+                            <i class="fas fa-user"></i> المعلومات الشخصية
+                        </h3>
+                        <form id="profilePersonalForm" onsubmit="saveProfilePersonal(event)">
+                            <div class="form-group">
+                                <label><i class="fas fa-user"></i> الاسم الكامل</label>
+                                <input type="text" id="profileFullName" required>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-envelope"></i> البريد الإلكتروني</label>
+                                <input type="email" id="profileEmail" required>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-phone"></i> رقم الجوال</label>
+                                <input type="tel" id="profilePhone" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> حفظ المعلومات الشخصية
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="color: var(--primary); margin-bottom: 1rem; border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem;">
+                            <i class="fas fa-building"></i> معلومات الشركة
+                        </h3>
+                        <form id="profileCompanyForm" onsubmit="saveProfileCompany(event)">
+                            <div class="form-group">
+                                <label><i class="fas fa-building"></i> اسم الشركة</label>
+                                <input type="text" id="profileCompanyName" required>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-tag"></i> الفئة/النشاط</label>
+                                <select id="profileCategory" required>
+                                    <option value="">اختر الفئة</option>
+                                    <option value="تعليم">تعليم</option>
+                                    <option value="نقل">نقل</option>
+                                    <option value="تقنية">تقنية</option>
+                                    <option value="استثمار">استثمار</option>
+                                    <option value="صحة">صحة</option>
+                                    <option value="أخرى">أخرى</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-align-right"></i> وصف الشركة</label>
+                                <textarea id="profileDescription" rows="4" placeholder="اكتب وصفاً مختصراً عن شركتك وخدماتك..." required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-globe"></i> الموقع الإلكتروني</label>
+                                <input type="text" id="profileWebsite" placeholder="www.company.com">
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> حفظ معلومات الشركة
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Brochure Section -->
+            <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid var(--gray-light);">
+                <h3 style="color: var(--primary); margin-bottom: 1rem; border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem;">
+                    <i class="fas fa-file-pdf"></i> البروشور الرقمي
+                </h3>
+                
+                <!-- Upload Brochure File -->
+                <div style="margin-bottom: 2rem; padding: 1.5rem; background: var(--gray-light); border-radius: 8px; border: 2px dashed var(--primary);">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: var(--primary);">
+                        <i class="fas fa-upload"></i> رفع بروشور جاهز (PDF أو صورة)
+                    </label>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <label for="brochureFileUpload" class="btn btn-primary" style="cursor: pointer; margin: 0;">
+                            <i class="fas fa-file-upload"></i> اختر ملف
+                        </label>
+                        <input type="file" id="brochureFileUpload" accept=".pdf,.jpg,.jpeg,.png" style="display: none;" onchange="handleBrochureFileUpload(event)">
+                        <span id="brochureFileName" style="color: var(--gray); font-size: 0.9rem;">لم يتم اختيار ملف</span>
+                        <button type="button" class="btn btn-outline" onclick="removeBrochureFile()" id="removeBrochureBtn" style="display: none;">
+                            <i class="fas fa-times"></i> إزالة
+                        </button>
+                    </div>
+                    <small style="color: var(--gray); display: block; margin-top: 0.5rem;">
+                        <i class="fas fa-info-circle"></i> يمكنك رفع ملف PDF أو صورة (JPG, PNG) - الحد الأقصى 10MB
+                    </small>
+                    <div id="brochureFilePreview" style="margin-top: 1rem; display: none;">
+                        <a id="brochureFileLink" href="#" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--primary); text-decoration: none; padding: 0.5rem 1rem; background: white; border-radius: 8px; border: 1px solid var(--primary);">
+                            <i class="fas fa-file-pdf"></i> <span id="brochureFileLinkText">عرض البروشور</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <form id="profileBrochureForm" onsubmit="saveProfileBrochure(event)">
+                    <div class="form-group">
+                        <label><i class="fas fa-heading"></i> عنوان البروشور</label>
+                        <input type="text" id="profileBrochureTitle" placeholder="مثال: حلول النقل الذكي للمدارس">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-align-right"></i> وصف البروشور</label>
+                        <textarea id="profileBrochureDescription" rows="3" placeholder="اكتب وصفاً تفصيلياً عن خدماتك ومميزاتك..."></textarea>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label><i class="fas fa-star"></i> المميزات (افصل بينها بفاصلة أو سطر جديد)</label>
+                            <textarea id="profileBrochureFeatures" rows="6" placeholder="مثال: تتبع مباشر للطلاب، إشعارات فورية، تقارير يومية، دعم 24/7"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-briefcase"></i> الخدمات (افصل بينها بفاصلة أو سطر جديد)</label>
+                            <textarea id="profileBrochureServices" rows="6" placeholder="مثال: نقل مدرسي، رحلات تعليمية، نقل طوارئ"></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-save"></i> حفظ البروشور
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Security Section -->
+            <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid var(--gray-light);">
+                <h3 style="color: var(--primary); margin-bottom: 1rem; border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem;">
+                    <i class="fas fa-lock"></i> الأمان
+                </h3>
+                <form id="profileSecurityForm" onsubmit="saveProfileSecurity(event)">
+                    <div class="form-group">
+                        <label><i class="fas fa-key"></i> كلمة المرور الحالية</label>
+                        <input type="password" id="profileCurrentPassword" placeholder="أدخل كلمة المرور الحالية">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-key"></i> كلمة المرور الجديدة</label>
+                        <input type="password" id="profileNewPassword" placeholder="أدخل كلمة المرور الجديدة">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-key"></i> تأكيد كلمة المرور</label>
+                        <input type="password" id="profileConfirmPassword" placeholder="أعد إدخال كلمة المرور الجديدة">
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> تحديث كلمة المرور
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Company Info Modal -->
+    <div id="companyInfoModal" class="modal">
+        <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <span class="close" onclick="closeCompanyInfoModal()">&times;</span>
+            <h2 style="margin-bottom: 2rem;"><i class="fas fa-building"></i> معلومات الشركة والبروشور</h2>
+            <form id="companyInfoForm" onsubmit="saveCompanyInfo(event)">
+                <!-- Company Basic Info -->
+                <div class="form-group">
+                    <label><i class="fas fa-building"></i> اسم الشركة</label>
+                    <input type="text" id="companyNameInput" required>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-align-right"></i> وصف الشركة</label>
+                    <textarea id="companyDescription" rows="3" placeholder="اكتب وصفاً مختصراً عن شركتك وخدماتك..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> الفئة/النشاط</label>
+                    <select id="companyCategory" required>
+                        <option value="">اختر الفئة</option>
+                        <option value="تعليم">تعليم</option>
+                        <option value="نقل">نقل</option>
+                        <option value="تقنية">تقنية</option>
+                        <option value="استثمار">استثمار</option>
+                        <option value="صحة">صحة</option>
+                        <option value="أخرى">أخرى</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> رقم الهاتف</label>
+                    <input type="tel" id="companyPhone" placeholder="+966501234567">
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> البريد الإلكتروني</label>
+                    <input type="email" id="companyEmail" placeholder="info@company.com">
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-globe"></i> الموقع الإلكتروني</label>
+                    <input type="text" id="companyWebsite" placeholder="www.company.com">
+                </div>
+                
+                <hr style="margin: 2rem 0; border: none; border-top: 2px solid var(--gray-light);">
+                
+                <!-- Brochure Info -->
+                <h3 style="margin-bottom: 1rem; color: var(--primary);"><i class="fas fa-file-pdf"></i> البروشور الرقمي</h3>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-heading"></i> عنوان البروشور</label>
+                    <input type="text" id="brochureTitle" placeholder="مثال: حلول النقل الذكي للمدارس">
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-align-right"></i> وصف البروشور</label>
+                    <textarea id="brochureDescription" rows="3" placeholder="اكتب وصفاً تفصيلياً عن خدماتك ومميزاتك..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-star"></i> المميزات (افصل بينها بفاصلة)</label>
+                    <textarea id="brochureFeatures" rows="4" placeholder="مثال: تتبع مباشر للطلاب، إشعارات فورية، تقارير يومية، دعم 24/7"></textarea>
+                    <small style="color: var(--gray);">اكتب كل ميزة في سطر جديد أو افصل بينها بفاصلة</small>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-briefcase"></i> الخدمات (افصل بينها بفاصلة)</label>
+                    <textarea id="brochureServices" rows="3" placeholder="مثال: نقل مدرسي، رحلات تعليمية، نقل طوارئ"></textarea>
+                    <small style="color: var(--gray);">اكتب كل خدمة في سطر جديد أو افصل بينها بفاصلة</small>
+                </div>
+                
+                <div class="form-actions" style="margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        <i class="fas fa-save"></i> حفظ المعلومات
+                    </button>
+                    <button type="button" class="btn btn-outline" onclick="closeCompanyInfoModal()" style="flex: 1;">
+                        إلغاء
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/exhibitor-dashboard.js"></script>
+</body>
+</html>
+

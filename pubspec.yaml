@@ -1,0 +1,100 @@
+name: smart_card
+description: تطبيق ذكي لإدارة المعارض واللقاءات التجارية
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # ========== UI & Icons ==========
+  cupertino_icons: ^1.0.6
+  font_awesome_flutter: ^10.6.0
+  google_fonts: ^6.1.0  # للخطوط العربية (Cairo)
+  flutter_svg: ^2.0.9  # للـ SVG Icons
+  
+  # ========== State Management ==========
+  provider: ^6.1.1
+  
+  # ========== Local Storage ==========
+  shared_preferences: ^2.2.2
+  
+  # ========== QR Code ==========
+  qr_flutter: ^4.1.0
+  mobile_scanner: ^5.2.3
+  
+  # ========== Utils ==========
+  intl: ^0.19.0
+  uuid: ^4.2.1
+  path_provider: ^2.1.1
+  
+  # ========== Navigation ==========
+  # go_router: ^13.0.0  # للمستقبل - deep links
+  
+  # ========== Networking ==========
+  http: ^1.1.0
+  # dio: ^5.4.0
+  
+  # ========== Firebase (للمستقبل) ==========
+  # firebase_core: ^2.24.2
+  # firebase_auth: ^4.15.3
+  # cloud_firestore: ^4.13.6
+  # firebase_storage: ^11.5.6
+  # firebase_analytics: ^10.7.4
+  # firebase_crashlytics: ^3.4.9
+  
+  # ========== AI Services ==========
+  speech_to_text: ^7.0.0  # Updated to fix Android compatibility
+  permission_handler: ^11.0.0
+  share_plus: ^7.2.1
+  # openai_dart: ^0.3.0  # للمستقبل
+  
+  # ========== Notifications ==========
+  flutter_local_notifications: ^17.2.2
+  timezone: ^0.9.2
+  
+  # ========== Charts ==========
+  fl_chart: ^0.66.0
+  
+  # ========== URL Launcher ==========
+  url_launcher: ^6.2.5
+  
+  # ========== Local Database (للمستقبل) ==========
+  # hive: ^2.2.3
+  # hive_flutter: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.13.1
+  
+  # ========== Testing (للمستقبل) ==========
+  # mockito: ^5.4.4
+  # build_runner: ^2.4.7
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/
+    - assets/icons/
+  
+  # Fonts will be added later if needed
+  # fonts:
+  #   - family: Cairo
+  #     fonts:
+  #       - asset: assets/fonts/Cairo-Regular.ttf
+
+# App Icon Configuration
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
+  adaptive_icon_background: "#2563EB"
+  adaptive_icon_foreground: "assets/images/logo.png"

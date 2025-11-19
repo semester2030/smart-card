@@ -1,0 +1,1 @@
+ /Users/fayez/Desktop/smart\ card/.dart_tool/flutter_build/c8b59a13c63489d0b6dc82dbe006e825/native_assets.json: 
