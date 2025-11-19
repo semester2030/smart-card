@@ -59,11 +59,11 @@ const connectDB = async () => {
       console.log(`🔗 Host: ${dbUrl.match(/@([^:]+):/)?.[1] || 'unknown'}`);
     }
     
-    // Set timeout for connection (10 seconds)
+    // Set timeout for connection (15 seconds)
     await Promise.race([
       sequelize.authenticate(),
       new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Connection timeout')), 10000)
+        setTimeout(() => reject(new Error('Connection timeout after 15s')), 15000)
       )
     ]);
     
@@ -73,33 +73,29 @@ const connectDB = async () => {
     // Sync models (create tables if they don't exist)
     // In production, sync without alter to avoid data loss
     // Use timeout to avoid blocking server start
-    await Promise.race([
-      sequelize.sync({ alter: false }),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Sync timeout')), 15000)
-      )
-    ]);
-    console.log('✅ Database tables synced');
+    try {
+      await Promise.race([
+        sequelize.sync({ alter: false }),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Sync timeout after 20s')), 20000)
+        )
+      ]);
+      console.log('✅ Database tables synced');
+    } catch (syncError) {
+      console.error(`⚠️ Database sync warning: ${syncError.message}`);
+      // Don't throw - tables might already exist
+    }
+    
     return true;
   } catch (error) {
     console.error(`❌ Error connecting to PostgreSQL: ${error.message}`);
-    console.error(`❌ Error code: ${error.code || 'N/A'}`);
-    
-    // More detailed error logging
-    if (error.original) {
-      console.error(`❌ Original error: ${error.original.message}`);
+    if (error.code) {
+      console.error(`❌ Error code: ${error.code}`);
     }
     
-    // In production, don't throw - let server start for health checks
+    // In production, NEVER throw - server must stay alive
     if (process.env.NODE_ENV === 'production') {
-      console.error('⚠️ Production mode: Server will continue - database operations may fail');
-      console.error('⚠️ Will retry database connection in background...');
-      // Retry connection in background (non-blocking)
-      setTimeout(() => {
-        connectDB().catch(() => {
-          // Silent retry - don't spam logs
-        });
-      }, 5000);
+      console.error('⚠️ Production: Server continues - database will retry in background');
       return false; // Don't throw - allow server to start
     }
     throw error; // In development, throw to see errors

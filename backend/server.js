@@ -124,6 +124,7 @@ app.use((req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
+// CRITICAL: Start server IMMEDIATELY - don't wait for anything
 // Railway automatically assigns PORT
 // Listen on 0.0.0.0 to accept connections from all network interfaces (required for Railway)
 const server = app.listen(PORT, '0.0.0.0', () => {
@@ -135,6 +136,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`🌐 Accessible at: http://localhost:${PORT} or http://YOUR_IP:${PORT}`);
   }
   console.log(`✅ Health check available at: http://0.0.0.0:${PORT}/health`);
+  console.log(`✅ Server is READY - Railway health check can now succeed`);
 });
 
 // Handle server errors gracefully
