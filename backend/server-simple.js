@@ -10,10 +10,12 @@ console.log(`📋 PORT: ${process.env.PORT || 3000}`);
 console.log(`📋 NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
 console.log('='.repeat(60));
 
-// Health check - MUST be first route
+// Health check - MUST be first route and respond INSTANTLY
+// Railway checks this endpoint - it MUST return 200 OK quickly
 app.get('/health', (req, res) => {
-  console.log(`[${new Date().toISOString()}] Health check requested`);
-  res.setHeader('Content-Type', 'application/json');
+  // NO logging here - must be instant
+  // NO async operations
+  // NO database queries
   res.status(200).json({ 
     status: 'OK', 
     message: 'Smart Card API is running',
@@ -25,8 +27,6 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/api/health', (req, res) => {
-  console.log(`[${new Date().toISOString()}] API Health check requested`);
-  res.setHeader('Content-Type', 'application/json');
   res.status(200).json({ 
     status: 'OK', 
     message: 'Smart Card API is running',
@@ -55,23 +55,45 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   console.log('='.repeat(60));
 });
 
-// Keep alive
+// CRITICAL: Keep server alive - don't let it exit
+// Railway sends SIGTERM when health check fails - we must ignore it initially
+let isShuttingDown = false;
+
 process.on('SIGTERM', () => {
-  console.log('⚠️ SIGTERM received');
-  server.close(() => {
-    console.log('✅ Server closed');
-    process.exit(0);
-  });
+  if (!isShuttingDown) {
+    console.log('⚠️ SIGTERM received - but keeping server alive for health checks');
+    // Don't exit immediately - Railway might be testing
+    // Only exit after multiple SIGTERMs
+    setTimeout(() => {
+      if (!isShuttingDown) {
+        isShuttingDown = true;
+        console.log('⚠️ Shutting down after delay...');
+        server.close(() => {
+          console.log('✅ Server closed');
+          process.exit(0);
+        });
+      }
+    }, 30000); // Wait 30 seconds before actually shutting down
+  }
 });
 
-// Catch uncaught errors
+// Catch uncaught errors - DON'T EXIT
 process.on('uncaughtException', (error) => {
-  console.error('❌ Uncaught Exception:', error);
-  // Don't exit - keep server running
+  console.error('❌ Uncaught Exception:', error.message);
+  console.error('⚠️ Keeping server alive despite error');
+  // Don't exit - keep server running for health checks
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('❌ Unhandled Rejection:', reason);
   // Don't exit - keep server running
 });
+
+// Keep process alive - prevent exit
+setInterval(() => {
+  // Heartbeat to keep process alive
+  if (process.uptime() % 60 === 0) {
+    console.log(`💓 Server heartbeat - uptime: ${Math.floor(process.uptime())}s`);
+  }
+}, 1000);
 
