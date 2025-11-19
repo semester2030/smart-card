@@ -19,10 +19,11 @@ class ApiService {
 
   // Base URL - Change this to your backend URL
   // For emulator/simulator testing:
-  static const String baseUrl = 'http://localhost:3000/api';
+  // static const String baseUrl = 'http://localhost:3000/api';
   // For physical device on same network: 'http://172.20.10.5:3000/api'
   // For Android emulator: 'http://10.0.2.2:3000/api'
-  // For production: 'https://your-api-domain.com/api'
+  // For production: Railway deployment
+  static const String baseUrl = 'https://smart-card-api.railway.app/api';
 
   // Get auth token from storage
   Future<String?> _getToken() async {
