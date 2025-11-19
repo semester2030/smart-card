@@ -1,48 +1,47 @@
-# سمارت كارد - Smart Card
+# 🎯 Smart Card - تطبيق ذكي لإدارة المعارض
 
-تطبيق ذكي لإدارة المعارض واللقاءات التجارية
+تطبيق Flutter متكامل لإدارة المعارض واللقاءات التجارية مع Backend Node.js وموقع ويب.
 
-## 📁 هيكل المشروع
+## 📱 **المكونات:**
 
-```
-smart card/
-├── assets/                 # الموارد الثابتة
-│   ├── css/               # ملفات CSS
-│   │   ├── theme.css     # ملف موحد للثيمات والألوان والأنيميشن
-│   │   ├── components.css # مكونات UI
-│   │   └── layout.css    # تخطيط الصفحات
-│   ├── js/               # ملفات JavaScript
-│   │   ├── app.js        # الكود الأساسي
-│   │   ├── visitor-dashboard.js
-│   │   ├── exhibitor-dashboard.js
-│   │   └── auth.js
-│   ├── images/           # الصور
-│   └── fonts/            # الخطوط
-├── pages/                # صفحات التطبيق
-│   ├── visitor-dashboard.html
-│   ├── exhibitor-dashboard.html
-│   └── auth.html
-├── components/           # مكونات قابلة لإعادة الاستخدام
-│   ├── modal.js
-│   └── toast.js
-├── utils/                # أدوات مساعدة
-│   ├── storage.js
-│   └── api.js
-├── config/               # الإعدادات
-│   └── constants.js
-└── index.html           # الصفحة الرئيسية
+- **Flutter App** - تطبيق موبايل (Android & iOS)
+- **Backend API** - Node.js + Express + PostgreSQL
+- **Website** - موقع ويب للعرض
+
+## 🚀 **البدء السريع:**
+
+### **Backend:**
+```bash
+cd backend
+npm install
+cp .env.example .env  # ثم عدّل .env
+npm run dev
 ```
 
-## 🎨 نظام الثيمات
+### **Flutter App:**
+```bash
+flutter pub get
+flutter run
+```
 
-جميع الألوان والأنيميشن في ملف واحد: `assets/css/theme.css`
+## 📚 **التوثيق:**
 
-## 🚀 البدء
+- [Backend Setup Guide](BACKEND_SETUP.md)
+- [Railway Deployment Guide](RAILWAY_DEPLOYMENT_GUIDE.md)
+- [Production Checklist](PRODUCTION_READY_CHECKLIST.md)
 
-1. افتح `index.html` في المتصفح
-2. ابدأ التطوير!
+## 🛠️ **التقنيات المستخدمة:**
 
-## 📝 ملاحظات
+- **Frontend:** Flutter (Dart)
+- **Backend:** Node.js, Express, Sequelize
+- **Database:** PostgreSQL
+- **Email:** SendGrid
+- **Deployment:** Railway
 
-- هذا هيكل المشروع فقط بدون كود
-- جميع الملفات فارغة وجاهزة للكتابة
+## 📄 **الترخيص:**
+
+MIT License
+
+---
+
+**Made with ❤️ by Smart Card Team**
