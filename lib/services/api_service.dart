@@ -23,7 +23,7 @@ class ApiService {
   // For physical device on same network: 'http://172.20.10.5:3000/api'
   // For Android emulator: 'http://10.0.2.2:3000/api'
   // For production: Railway deployment
-  static const String baseUrl = 'https://smart-card-api.railway.app/api';
+  static const String baseUrl = 'https://smart-card-production.up.railway.app/api';
 
   // Get auth token from storage
   Future<String?> _getToken() async {
