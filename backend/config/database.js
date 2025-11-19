@@ -59,31 +59,50 @@ const connectDB = async () => {
       console.log(`🔗 Host: ${dbUrl.match(/@([^:]+):/)?.[1] || 'unknown'}`);
     }
     
-    await sequelize.authenticate();
+    // Set timeout for connection (10 seconds)
+    await Promise.race([
+      sequelize.authenticate(),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Connection timeout')), 10000)
+      )
+    ]);
+    
     const config = sequelize.config;
     console.log(`✅ PostgreSQL Connected: ${config.host}:${config.port}/${config.database}`);
     
     // Sync models (create tables if they don't exist)
     // In production, sync without alter to avoid data loss
-    await sequelize.sync({ alter: false }); // Use { force: true } to drop and recreate tables (DANGEROUS!)
+    // Use timeout to avoid blocking server start
+    await Promise.race([
+      sequelize.sync({ alter: false }),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Sync timeout')), 15000)
+      )
+    ]);
     console.log('✅ Database tables synced');
     return true;
   } catch (error) {
     console.error(`❌ Error connecting to PostgreSQL: ${error.message}`);
     console.error(`❌ Error code: ${error.code || 'N/A'}`);
-    console.error(`❌ Error details: ${error.toString()}`);
     
     // More detailed error logging
     if (error.original) {
       console.error(`❌ Original error: ${error.original.message}`);
     }
     
-    // In production, don't exit immediately - let Railway retry
+    // In production, don't throw - let server start for health checks
     if (process.env.NODE_ENV === 'production') {
-      console.error('⚠️ Production mode: Will retry connection...');
-      // Don't exit - let Railway handle retries
+      console.error('⚠️ Production mode: Server will continue - database operations may fail');
+      console.error('⚠️ Will retry database connection in background...');
+      // Retry connection in background (non-blocking)
+      setTimeout(() => {
+        connectDB().catch(() => {
+          // Silent retry - don't spam logs
+        });
+      }, 5000);
+      return false; // Don't throw - allow server to start
     }
-    throw error; // Re-throw to let caller handle
+    throw error; // In development, throw to see errors
   }
 };
 

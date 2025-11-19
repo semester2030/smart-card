@@ -85,8 +85,9 @@ app.get('/api', (req, res) => {
 });
 
 // Health check - Railway uses this to verify the service is running
-// Must respond quickly and return 200 status
+// Must respond quickly and return 200 status - NO database queries!
 app.get('/health', (req, res) => {
+  // Quick response - no database check to avoid delays
   res.status(200).json({ 
     status: 'OK', 
     message: 'Smart Card API is running',
@@ -95,6 +96,7 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/api/health', (req, res) => {
+  // Quick response - no database check to avoid delays
   res.status(200).json({ 
     status: 'OK', 
     message: 'Smart Card API is running',
@@ -124,7 +126,7 @@ const PORT = process.env.PORT || 3000;
 
 // Railway automatically assigns PORT
 // Listen on 0.0.0.0 to accept connections from all network interfaces (required for Railway)
-app.listen(PORT, '0.0.0.0', () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📱 Environment: ${process.env.NODE_ENV || 'development'}`);
   if (process.env.RAILWAY_ENVIRONMENT) {
@@ -132,6 +134,25 @@ app.listen(PORT, '0.0.0.0', () => {
   } else {
     console.log(`🌐 Accessible at: http://localhost:${PORT} or http://YOUR_IP:${PORT}`);
   }
+  console.log(`✅ Health check available at: http://0.0.0.0:${PORT}/health`);
+});
+
+// Handle server errors gracefully
+server.on('error', (error) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`❌ Port ${PORT} is already in use`);
+  } else {
+    console.error(`❌ Server error: ${error.message}`);
+  }
+});
+
+// Keep server alive - don't let it exit
+process.on('SIGTERM', () => {
+  console.log('⚠️ SIGTERM received, shutting down gracefully...');
+  server.close(() => {
+    console.log('✅ Server closed');
+    process.exit(0);
+  });
 });
 
 module.exports = app;
