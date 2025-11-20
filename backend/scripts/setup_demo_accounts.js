@@ -1,6 +1,16 @@
 const { sequelize } = require('../config/database');
 const { User, Contact, Note, FollowUp, Lead } = require('../models');
-const bcrypt = require('bcryptjs');
+const DEFAULT_PASSWORD = 'demo123';
+
+async function ensureDemoUser(user, extra = {}) {
+  user.password = DEFAULT_PASSWORD;
+  user.isVerified = true;
+  user.otp = null;
+  user.otpExpires = null;
+  Object.assign(user, extra);
+  await user.save();
+  console.log(`♻️  Refreshed demo account: ${user.email}`);
+}
 
 /**
  * Complete setup: Create demo accounts + add demo data
@@ -16,11 +26,10 @@ async function setupDemoAccounts() {
     // Visitor account
     let visitorUser = await User.findOne({ where: { email: 'visitor@demo.com' } });
     if (!visitorUser) {
-      const visitorPassword = await bcrypt.hash('demo123', 10);
       visitorUser = await User.create({
         name: 'محمد أحمد',
         email: 'visitor@demo.com',
-        password: visitorPassword,
+        password: DEFAULT_PASSWORD,
         phone: '+966501234567',
         role: 'visitor',
         expoId: 'SmartCard#1200',
@@ -31,17 +40,19 @@ async function setupDemoAccounts() {
       });
       console.log(`✅ Created visitor: ${visitorUser.expoId} (${visitorUser.email})`);
     } else {
+      await ensureDemoUser(visitorUser, {
+        interests: ['تعليم', 'نقل', 'تقنية']
+      });
       console.log(`✅ Visitor already exists: ${visitorUser.expoId}`);
     }
 
     // Exhibitor account
     let exhibitorUser = await User.findOne({ where: { email: 'exhibitor@demo.com' } });
     if (!exhibitorUser) {
-      const exhibitorPassword = await bcrypt.hash('demo123', 10);
       exhibitorUser = await User.create({
         name: 'أحمد محمد',
         email: 'exhibitor@demo.com',
-        password: exhibitorPassword,
+        password: DEFAULT_PASSWORD,
         phone: '+966501111111',
         role: 'exhibitor',
         companyName: 'نقل بلس',
@@ -53,6 +64,10 @@ async function setupDemoAccounts() {
       });
       console.log(`✅ Created exhibitor: ${exhibitorUser.expoId} (${exhibitorUser.email})`);
     } else {
+      await ensureDemoUser(exhibitorUser, {
+        companyName: 'نقل بلس',
+        category: 'نقل'
+      });
       console.log(`✅ Exhibitor already exists: ${exhibitorUser.expoId}`);
     }
 

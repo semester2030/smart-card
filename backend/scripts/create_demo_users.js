@@ -1,6 +1,16 @@
 const { sequelize } = require('../config/database');
 const { User } = require('../models');
-const bcrypt = require('bcryptjs');
+const DEFAULT_PASSWORD = 'demo123';
+
+async function resetDemoUser(user, extra = {}) {
+  user.password = DEFAULT_PASSWORD;
+  user.isVerified = true;
+  user.otp = null;
+  user.otpExpires = null;
+  Object.assign(user, extra);
+  await user.save();
+  console.log(`♻️  Updated demo account: ${user.email}`);
+}
 
 /**
  * Create demo accounts for testing
@@ -15,14 +25,13 @@ async function createDemoUsers() {
     const existingExhibitor = await User.findOne({ where: { email: 'exhibitor@demo.com' } });
 
     if (existingVisitor) {
-      console.log('⚠️ Visitor demo account already exists');
+      await resetDemoUser(existingVisitor);
     } else {
       // Create Visitor demo account
-      const visitorPassword = await bcrypt.hash('demo123', 10);
       const visitor = await User.create({
         name: 'محمد أحمد',
         email: 'visitor@demo.com',
-        password: visitorPassword,
+        password: DEFAULT_PASSWORD,
         phone: '+966501234567',
         role: 'visitor',
         expoId: 'SmartCard#1200',
@@ -35,14 +44,16 @@ async function createDemoUsers() {
     }
 
     if (existingExhibitor) {
-      console.log('⚠️ Exhibitor demo account already exists');
+      await resetDemoUser(existingExhibitor, {
+        companyName: 'شركة التقنيات الذكية',
+        category: 'تقنية'
+      });
     } else {
       // Create Exhibitor demo account
-      const exhibitorPassword = await bcrypt.hash('demo123', 10);
       const exhibitor = await User.create({
         name: 'شركة التقنيات الذكية',
         email: 'exhibitor@demo.com',
-        password: exhibitorPassword,
+        password: DEFAULT_PASSWORD,
         phone: '+966502345678',
         role: 'exhibitor',
         companyName: 'شركة التقنيات الذكية',
