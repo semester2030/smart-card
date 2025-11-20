@@ -99,29 +99,6 @@ class HomeScreen extends StatelessWidget {
                 },
                 width: double.infinity,
               ),
-              const SizedBox(height: 12),
-              // Try as Visitor Button (Demo)
-              TextButton(
-                onPressed: () async {
-                  final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                  final success = await authProvider.loginAsVisitor();
-                  if (success && context.mounted) {
-                    Navigator.of(context).pushReplacementNamed(Routes.visitorDashboard);
-                  }
-                },
-                child: const Text('تجربة الزائر'),
-              ),
-              // Try as Exhibitor Button (Demo)
-              TextButton(
-                onPressed: () async {
-                  final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                  final success = await authProvider.loginAsExhibitor();
-                  if (success && context.mounted) {
-                    Navigator.of(context).pushReplacementNamed(Routes.exhibitorDashboard);
-                  }
-                },
-                child: const Text('تجربة العارض'),
-              ),
             ],
           ),
         ),

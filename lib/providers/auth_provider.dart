@@ -95,26 +95,6 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  /// Login as visitor (demo mode - for testing only)
-  /// Note: Demo account is pre-created in database (visitor@demo.com / demo123)
-  Future<bool> loginAsVisitor() async {
-    // Demo account is pre-created in database
-    // Email: visitor@demo.com
-    // Password: demo123
-    // ExpoID: SmartCard#1200
-    return await login('visitor@demo.com', 'demo123');
-  }
-
-  /// Login as exhibitor (demo mode - for testing only)
-  /// Note: Demo account is pre-created in database (exhibitor@demo.com / demo123)
-  Future<bool> loginAsExhibitor() async {
-    // Demo account is pre-created in database
-    // Email: exhibitor@demo.com
-    // Password: demo123
-    // ExpoID: SmartCard#2048
-    return await login('exhibitor@demo.com', 'demo123');
-  }
-
   /// Logout
   Future<void> logout() async {
     _currentUser = null;
